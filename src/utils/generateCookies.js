@@ -7,7 +7,7 @@ export const genCookies = async (user) => {
       { id: user._id },
       process.env.JWT_ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "60m",
+        expiresIn: "1h",
       }
     );
     const refreshToken = await jwt.sign(

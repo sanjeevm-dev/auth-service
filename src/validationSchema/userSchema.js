@@ -6,7 +6,7 @@ export const userValidationSchema = Joi.object({
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).max(30).required(),
-  Designation: Joi.string().valid("dr", "user", "admin").required().messages({
+  designation: Joi.string().valid("dr", "user", "admin").required().messages({
     "any.only": "Designation must be one of [dr, user, admin].",
     "string.empty": "Designation is required.",
   }),

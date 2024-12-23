@@ -16,9 +16,9 @@ dotenv.config();
 export class AuthController {
   static async SignUp(req, res) {
     try {
-      const { firstName, lastName, email, password, Designation } = req.body;
+      const { firstName, lastName, email, password, designation } = req.body;
 
-      if (!firstName || !lastName || !email || !password || !Designation) {
+      if (!firstName || !lastName || !email || !password || !designation) {
         return res.status(400).json({ message: "All fields are required" });
       }
 
@@ -40,7 +40,7 @@ export class AuthController {
         lastName,
         email,
         password: hashPassword,
-        Designation,
+        designation,
         isVerified: false,
       });
 
@@ -82,7 +82,7 @@ export class AuthController {
 
   static async verifyUser(req, res) {
     try {
-      const { token } = req.query;
+      const { token } = req.query || req.body;
 
       // Validate input
       if (!token) {
@@ -175,8 +175,8 @@ export class AuthController {
 
       const options = {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        secure: false,
+        sameSite: "lax",
       };
 
       res
@@ -283,11 +283,11 @@ export class AuthController {
         return res.status(400).json({ message: "Password is required" });
       }
 
-      // Validate password using Joi schema
-      const { error } = passwordSchema.validate({ password });
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
+      // // Validate password using Joi schema
+      // const { error } = passwordSchema.validate({ password });
+      // if (error) {
+      //   return res.status(400).json({ message: error.details[0].message });
+      // }
 
       // Verify token
       let decoded;
@@ -380,8 +380,8 @@ export class AuthController {
       // Set new tokens as cookies and send response
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: false,
+        sameSite: "lax",
       };
 
       res

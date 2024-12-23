@@ -7,16 +7,21 @@ import roleBasedAccess from "../middlewares/roleBasedAccess.js";
 const userApis = Router();
 
 userApis.get(
+  "/getCurrentUser",
+  authMiddleware,
+  asyncFunction(UserController.getCurrentUser)
+);
+
+userApis.get(
   "/getUserById",
   authMiddleware,
-  roleBasedAccess,
   asyncFunction(UserController.getUserById)
 );
 // userApis.get("getProfile", asyncFunction(UserController.getProfile));
 userApis.get(
   "/getAllUsers",
   authMiddleware,
-  roleBasedAccess("admin"),
+
   asyncFunction(UserController.getAllUsers)
 );
 userApis.post("/updateUser", asyncFunction(UserController.updateUser));

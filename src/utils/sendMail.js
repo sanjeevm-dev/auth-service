@@ -1,8 +1,20 @@
 import nodemailer from "nodemailer";
 
 const sendMail = async ({ sender, receiver, htmlContent, subject }) => {
-  console.log(sender, receiver, htmlContent, subject);
-
+  if (
+    !sender ||
+    !receiver ||
+    !htmlContent ||
+    !process.env.MAIL_SERVICE ||
+    !process.env.MAIL_USER ||
+    !process.env.MAIL_PASS
+  ) {
+    console.error("Error: sending email missing required parameters.");
+    return {
+      success: false,
+      message: "Missing required parameters.",
+    };
+  }
   try {
     // Create the transporter
     const transporter = nodemailer.createTransport({
