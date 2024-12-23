@@ -203,6 +203,79 @@ export class AuthController {
     }
   }
 
+  static async signInWithGoogle(req, res) {
+    try {
+      const {
+        firstName,
+        lastName,
+        email,
+        password = "example@123",
+        designation,
+        isGoogleUser,
+        isVerified,
+      } = req.body;
+
+      // Check if the user already exists
+      let user = await Users.findOne({ email });
+
+      if (!user) {
+        // Hash the password before saving (if applicable)
+        const hashedPassword = password
+          ? await bcrypt.hash(password, 10)
+          : null;
+
+        // Create a new user
+        user = await Users.create({
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+          designation,
+          isGoogleUser,
+          isVerified,
+        });
+      }
+
+      // Generate access and refresh tokens
+      const { accessToken, refreshToken } = await genCookies(user._id);
+
+      const dbRefreshTokenRecord = await RefreshToken.findOne({
+        userId: user._id,
+      });
+
+      if (dbRefreshTokenRecord) {
+        dbRefreshTokenRecord.token = refreshToken;
+        await dbRefreshTokenRecord.save();
+      } else {
+        const newRefreshToken = new RefreshToken({
+          token: refreshToken,
+          userId: user._id,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), //one month
+        });
+        await newRefreshToken.save();
+      }
+
+      // Cookie options
+      const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      };
+
+      // Set cookies and send response
+      res
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .status(200)
+        .json({ message: "User logged in successfully" });
+    } catch (error) {
+      console.error("Error in signInWithGoogle:", error);
+      res
+        .status(500)
+        .json({ message: "An error occurred", error: error.message });
+    }
+  }
+
   static async ForgotPassword(req, res) {
     try {
       const { email } = req.body;
@@ -293,6 +366,9 @@ export class AuthController {
       let decoded;
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.exp < Date.now() / 1000) {
+          return res.status(401).json({ message: "Token expired" });
+        }
       } catch (err) {
         if (err.name === "JsonWebTokenError") {
           return res.status(400).json({ message: "Invalid token" });

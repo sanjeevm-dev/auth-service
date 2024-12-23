@@ -6,6 +6,10 @@ const authApis = Router();
 
 authApis.post("/signUp", asyncFunction(AuthController.SignUp));
 authApis.post("/signIn", asyncFunction(AuthController.SignIn));
+authApis.post(
+  "/signInWithGoogle",
+  asyncFunction(AuthController.signInWithGoogle)
+);
 authApis.post("/signOut", asyncFunction(AuthController.SignOut));
 authApis.post(
   "/refreshAccessToken",

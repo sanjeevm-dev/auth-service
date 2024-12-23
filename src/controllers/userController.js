@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Users from "../models/UserSchema.js";
 import { userValidationSchema } from "../validationSchema/userSchema.js";
 
@@ -8,7 +9,15 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json(user);
+      const userdata = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        designation: user.designation,
+        _id: user._id,
+        isVerified: user.isVerified,
+      };
+      res.status(200).json(userdata);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -20,7 +29,16 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json(user);
+
+      const userdata = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        designation: user.designation,
+        _id: user._id,
+        isVerified: user.isVerified,
+      };
+      res.status(200).json(userdata);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
